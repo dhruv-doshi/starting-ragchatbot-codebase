@@ -76,6 +76,7 @@
 
 /* Theme Transition — every element that references a CSS variable animates smoothly */
 body,
+header,
 .main-content,
 .sidebar,
 .chat-main,
@@ -241,9 +242,14 @@ body {
     padding: 0;
 }
 
-/* Header - Hidden */
+/* Header */
 header {
-    display: none;
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--surface);
+    border-bottom: 2px solid var(--primary-color);
+    flex-shrink: 0;
 }
 
 header h1 {
@@ -254,12 +260,6 @@ header h1 {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin: 0;
-}
-
-.subtitle {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    margin-top: 0.5rem;
 }
 
 /* Main Content Area with Sidebar */
