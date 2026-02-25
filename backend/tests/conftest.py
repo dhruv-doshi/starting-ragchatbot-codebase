@@ -15,11 +15,19 @@ def sample_course_chunk_metadata():
     return [
         (
             "Python is a high-level programming language.",
-            {"course_title": "Introduction to Python", "lesson_number": 1, "chunk_index": 0},
+            {
+                "course_title": "Introduction to Python",
+                "lesson_number": 1,
+                "chunk_index": 0,
+            },
         ),
         (
             "Functions in Python are defined using the def keyword.",
-            {"course_title": "Introduction to Python", "lesson_number": 2, "chunk_index": 1},
+            {
+                "course_title": "Introduction to Python",
+                "lesson_number": 2,
+                "chunk_index": 1,
+            },
         ),
     ]
 

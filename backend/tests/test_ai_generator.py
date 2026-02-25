@@ -1,4 +1,5 @@
 """Tests for AIGenerator — all API calls are mocked."""
+
 import sys
 import os
 import pytest
@@ -9,10 +10,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from ai_generator import AIGenerator
 import config as cfg
 
-
 # ---------------------------------------------------------------------------
 # Mock response helpers
 # ---------------------------------------------------------------------------
+
 
 def _text_response(text="Hello, this is a test response."):
     response = MagicMock()
@@ -45,6 +46,7 @@ def _tool_use_response(
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 class TestAIGenerator:
 
@@ -115,7 +117,9 @@ class TestAIGenerator:
                 )
                 for msg in messages
             )
-            assert tool_result_found, "No tool_result block found in second API call messages"
+            assert (
+                tool_result_found
+            ), "No tool_result block found in second API call messages"
 
     def test_generate_response_returns_final_text_after_tool_execution(self):
         with patch("anthropic.Anthropic") as mock_cls:
