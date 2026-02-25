@@ -1,4 +1,5 @@
 """Integration tests for RAGSystem.query() — pinpoints config bugs."""
+
 import sys
 import os
 import pytest
@@ -10,10 +11,10 @@ import config as cfg
 from vector_store import VectorStore, SearchResults
 from rag_system import RAGSystem
 
-
 # ---------------------------------------------------------------------------
 # Mock response helpers (same pattern as test_ai_generator)
 # ---------------------------------------------------------------------------
+
 
 def _text_response(text="Test response"):
     response = MagicMock()
@@ -25,7 +26,9 @@ def _text_response(text="Test response"):
     return response
 
 
-def _tool_use_response(tool_name="search_course_content", tool_input=None, tool_id="toolu_abc"):
+def _tool_use_response(
+    tool_name="search_course_content", tool_input=None, tool_id="toolu_abc"
+):
     if tool_input is None:
         tool_input = {"query": "python"}
     response = MagicMock()
@@ -43,6 +46,7 @@ def _tool_use_response(tool_name="search_course_content", tool_input=None, tool_
 # Config sanity
 # ---------------------------------------------------------------------------
 
+
 class TestRAGSystemConfig:
 
     def test_config_max_results_is_positive(self):
@@ -57,6 +61,7 @@ class TestRAGSystemConfig:
 # VectorStore with zero results
 # ---------------------------------------------------------------------------
 
+
 class TestVectorStoreWithZeroResults:
 
     def test_vector_store_search_n_results_zero_returns_error(self):
@@ -67,17 +72,18 @@ class TestVectorStoreWithZeroResults:
 
         result = vs.search("python")
 
-        assert result.error is not None, (
-            "Expected an error SearchResults when max_results=0, but got none."
-        )
-        assert "Search error" in result.error, (
-            f"Unexpected error format: {result.error}"
-        )
+        assert (
+            result.error is not None
+        ), "Expected an error SearchResults when max_results=0, but got none."
+        assert (
+            "Search error" in result.error
+        ), f"Unexpected error format: {result.error}"
 
 
 # ---------------------------------------------------------------------------
 # RAGSystem integration (mocked Anthropic API)
 # ---------------------------------------------------------------------------
+
 
 class TestRAGSystemIntegration:
 
@@ -131,6 +137,6 @@ class TestRAGSystemIntegration:
 
         result = vs.search("python")
 
-        assert result.error is None, (
-            f"Unexpected search error with max_results=5: {result.error}"
-        )
+        assert (
+            result.error is None
+        ), f"Unexpected search error with max_results=5: {result.error}"

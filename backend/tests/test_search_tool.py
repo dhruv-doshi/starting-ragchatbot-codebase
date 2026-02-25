@@ -1,4 +1,5 @@
 """Tests for CourseSearchTool.execute()"""
+
 import sys
 import os
 import pytest
@@ -10,10 +11,10 @@ from search_tools import CourseSearchTool
 from vector_store import SearchResults
 import config as cfg
 
-
 # ---------------------------------------------------------------------------
 # Unit tests — VectorStore is mocked
 # ---------------------------------------------------------------------------
+
 
 class TestCourseSearchToolUnit:
 
@@ -94,6 +95,7 @@ class TestCourseSearchToolUnit:
 # Integration test — real ChromaDB
 # ---------------------------------------------------------------------------
 
+
 class TestCourseSearchToolIntegration:
 
     def test_execute_against_real_vector_store(self, real_vector_store):
@@ -102,6 +104,6 @@ class TestCourseSearchToolIntegration:
 
         result = tool.execute(query="python")
 
-        assert not result.startswith("Search error:"), (
-            f"Search failed — likely caused by MAX_RESULTS=0 in config.py. Got: {result}"
-        )
+        assert not result.startswith(
+            "Search error:"
+        ), f"Search failed — likely caused by MAX_RESULTS=0 in config.py. Got: {result}"
