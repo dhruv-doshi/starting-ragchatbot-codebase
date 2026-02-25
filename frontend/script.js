@@ -7,7 +7,53 @@ let currentSessionId = null;
 // DOM elements
 let chatMessages, chatInput, sendButton, totalCourses, courseTitles;
 
-// Initialize
+// ── Theme Toggle ──────────────────────────────────────────────────────────────
+
+function initTheme() {
+    // The inline <head> script already set data-theme before first paint.
+    // Here we re-confirm it (handles the edge case where the inline script
+    // couldn't run) and sync the button aria-label.
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+        applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        applyTheme('light');
+    } else {
+        // Always write an explicit attribute so [data-theme="dark"] CSS rules fire
+        applyTheme('dark');
+    }
+}
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+        btn.setAttribute(
+            'aria-label',
+            theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'
+        );
+    }
+}
+
+function toggleTheme() {
+    // Brief press-down animation — restarts cleanly even on rapid clicks
+    const btn = document.getElementById('themeToggle');
+    btn.classList.remove('activated');
+    void btn.offsetWidth; // force reflow so the animation restarts
+    btn.classList.add('activated');
+    btn.addEventListener('animationend', () => btn.classList.remove('activated'), { once: true });
+
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+    localStorage.setItem('theme', next);
+}
+
+// Apply theme before first paint to avoid flash
+initTheme();
+
+// ── Initialize ────────────────────────────────────────────────────────────────
+
 document.addEventListener('DOMContentLoaded', () => {
     // Get DOM elements after page loads
     chatMessages = document.getElementById('chatMessages');
@@ -15,7 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
     sendButton = document.getElementById('sendButton');
     totalCourses = document.getElementById('totalCourses');
     courseTitles = document.getElementById('courseTitles');
-    
+
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
     setupEventListeners();
     createNewSession();
     loadCourseStats();
