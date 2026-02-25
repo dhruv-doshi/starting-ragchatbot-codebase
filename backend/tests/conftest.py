@@ -1,7 +1,7 @@
 import sys
 import os
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 # Ensure backend/ is importable
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -73,6 +73,61 @@ Variables in Python are dynamically typed. You can assign any value to a variabl
     course_file = tmp_path / "test_course.txt"
     course_file.write_text(content)
     return str(course_file)
+
+
+class _DummyStaticFiles:
+    """Minimal ASGI stub replacing StaticFiles during API tests.
+
+    Avoids the directory-existence check in StaticFiles.__init__ and
+    provides a valid ASGI callable so app.mount() doesn't complain.
+    Any request that falls through to this mount returns 404.
+    """
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    async def __call__(self, scope, receive, send):
+        await send({"type": "http.response.start", "status": 404, "headers": []})
+        await send({"type": "http.response.body", "body": b""})
+
+
+@pytest.fixture
+def app_client():
+    """TestClient for the FastAPI app with RAGSystem and StaticFiles mocked.
+
+    Patches are applied *before* importing app.py so that:
+    - RAGSystem(config) returns mock_rag instead of touching ChromaDB/Anthropic.
+    - StaticFiles(directory="../frontend") never checks the filesystem.
+
+    The app module is popped from sys.modules before each test to guarantee a
+    fresh import, giving each test its own isolated mock_rag instance.
+    """
+    from fastapi.testclient import TestClient
+
+    mock_rag = MagicMock()
+    mock_rag.query.return_value = ("Test answer", [])
+    mock_rag.get_course_analytics.return_value = {
+        "total_courses": 2,
+        "course_titles": ["Course A", "Course B"],
+    }
+    mock_rag.session_manager.create_session.return_value = "test-session-id"
+    mock_rag.add_course_folder.return_value = (0, 0)
+
+    sys.modules.pop("app", None)
+
+    with patch("rag_system.RAGSystem", return_value=mock_rag), patch(
+        "fastapi.staticfiles.StaticFiles", _DummyStaticFiles
+    ):
+        import app as app_module  # noqa: PLC0415
+
+    # Explicitly override the module-level rag_system so route handlers use
+    # our mock regardless of what RAGSystem(config) captured at import time.
+    app_module.rag_system = mock_rag
+
+    with TestClient(app_module.app) as client:
+        yield client, mock_rag
+
+    sys.modules.pop("app", None)
 
 
 @pytest.fixture
